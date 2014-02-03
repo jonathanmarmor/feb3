@@ -6,6 +6,7 @@ import itertools
 import datetime
 import csv
 import os
+from collections import Counter
 
 import yaml
 
@@ -295,7 +296,10 @@ class Piece(object):
         for i, event in enumerate(self.score):
             print i
             for name in event:
-                print '  {:>10} {}'.format(name, event[name])
+                action = event[name]
+                if action != 'stop':
+                    action = spell(event[name])
+                print '  {:>10} {}'.format(name, action)
             print
 
     def report_rhythm(self):
@@ -309,14 +313,18 @@ class Piece(object):
             print '{:<15}  {}'.format(name, ''.join(line))
 
     def report_harmonies(self):
+        c = Counter()
         lines = []
         actual_length = len(self.grid[self.grid.keys()[0]])
         for e in range(actual_length):
             pitches = []
             for name in self.musicians:
-                for p in self.grid[name][e]:
-                    if p not in pitches:
-                        pitches.append(p)
+                if self.grid[name][e] != 'stop':
+                    for p in self.grid[name][e]:
+                        if p not in pitches:
+                            pitches.append(p)
+            harmony = tuple(sorted(pitches))
+            c[harmony] += 1
             line = []
             for pc in range(12):
                 if pc in pitches:
@@ -326,6 +334,10 @@ class Piece(object):
             lines.append(''.join(line))
         for line in lines:
             print line
+        print
+        print 'Number of different chords: ', len(c)
+        for k, n in c.most_common():
+            print n, k
         return lines
 
     def to_csv(self):
@@ -347,6 +359,15 @@ class Piece(object):
                         action = spell(event[name])
                     writer.writerow([line_number, name, action])
 
+    def pitches_in_part(self, name):
+        pitches = set()
+        for event in self.grid[name]:
+            if event and event != 'stop':
+                pitches.update(event)
+        pitches = list(pitches)
+        pitches.sort()
+        return pitches
+
 
 def main():
     n_events = 72
@@ -362,7 +383,9 @@ def main():
     print
     p.report_harmonies()
     print
-
+    connor = p.pitches_in_part('Connor')
+    print connor
+    print len(connor)
     return p
 
 
