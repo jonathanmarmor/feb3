@@ -368,6 +368,19 @@ class Piece(object):
         pitches.sort()
         return pitches
 
+    def reports(self):
+        print
+        self.report_score()
+        print
+        self.report_rhythm()
+        print
+        self.report_harmonies()
+        print
+        connor = self.pitches_in_part('Connor')
+        print connor
+        print len(connor)
+        return self
+
 
 def main():
     n_events = 72
@@ -376,16 +389,7 @@ def main():
     p = Piece(n_events)
     # p.test()
     p.run()
-    print
-    p.report_score()
-    print
-    p.report_rhythm()
-    print
-    p.report_harmonies()
-    print
-    connor = p.pitches_in_part('Connor')
-    print connor
-    print len(connor)
+    p.reports()
     return p
 
 
