@@ -10,7 +10,7 @@ import argparse
 import yaml
 
 
-MAX_DEPTH = 1000
+MAX_DEPTH = 99
 
 
 def try_f(f, args=[], kwargs={}, depth=0):
@@ -25,18 +25,45 @@ def try_f(f, args=[], kwargs={}, depth=0):
         return try_f(f, args=args, kwargs=kwargs, depth=depth)
 
 
-def scale(x, minimum, maximum, floor=0, ceiling=1):
-    return ((ceiling - floor) * (float(x) - minimum)) / (maximum - minimum) + floor
+def weighted_choice_lists(options, weights):
+    """Choose an item from options using weights
 
+    >>> weighted_choice_lists([1, 2], [100000, 0.000001])
+    1
 
-def weighted_choice(options, weights):
-    rand = random.random()
-    rand = scale(rand, 0, 1, 0, sum(weights))
+    """
+    sum_of_weights = sum(weights)
+    rand = random.uniform(0, sum_of_weights)
     total = 0
-    for i, weight in enumerate(weights):
+    for item, weight in zip(options, weights):
         total += weight
         if rand < total:
-            return options[i]
+            return item
+
+
+def weighted_choice(pairs):
+    """Choose an item from a list of (item, weight) pairs
+
+    >>> pairs = [(1, 10000), (2, 0.000001)]
+    >>> weighted_choice(pairs)
+    1
+
+    """
+    options, weights = zip(*pairs)
+    return weighted_choice_lists(weights, options)
+
+
+def weighted_choice_dict(d):
+    """Choose a key from a dict using the values as weights.
+
+    Works for collections.Counter using the counts as weights.
+
+    >>> chords = {(0, 4, 7): 10000, (0, 1, 2): 0.000001}
+    >>> weighted_choice_dict(chords)
+    (0, 4, 7)
+
+    """
+    return weighted_choice(d.items())
 
 
 def zero(root, chord):
@@ -49,140 +76,142 @@ def get_all_transpositions(chord):
 
 
 allowed_chord_types = [
-#     (0,),
-#     (0, 5),
-#     (0, 4),
-#     (0, 4, 7),
-#     (0, 3, 7),
-#     (0, 3),
-#     (0, 5, 7),
-#     (0, 3, 5),
-#     (0, 2),
-#     (0, 2, 5),
-#     (0, 3, 7, 10),
-#     (0, 4, 7, 10),
-#     (0, 2, 4, 7),
-#     (0, 3, 5, 7),
-#     (0, 2, 5, 7),
-#     (0, 2, 4, 7, 9),
-#     (0, 4, 7, 11),
-#     (0, 2, 4, 7, 10),
-#     (0, 3, 7, 9),
-#     (0, 2, 4),
-#     (0, 2, 6),
-#     (0, 3, 6),
-#     (0, 4, 8)
-# ]
- (0, 2, 3, 7, 9),
- (0, 4, 7, 9, 11),
- (0, 7),
- (0, 5, 7),
- (0, 4, 6, 7, 11),
- (0, 10),
- (0, 4, 5, 7, 9),
- (0, 7, 10),
- (0, 3, 4, 7, 10),
- (0, 7, 8),
- (0, 2, 5, 7, 9, 10),
- (0, 2, 5),
- (0, 4, 8),
- (0, 2, 7),
- (0, 4, 7, 9, 10),
- (0, 3, 7, 8, 10),
- (0,),
- (0, 3, 6, 9),
- (0, 4, 6, 7),
- (0, 3, 6, 10),
- (0, 4, 6, 10),
- (0, 1, 3, 6),
- (0, 1, 4, 7, 10),
- (0, 3, 5, 7),
- (0, 2, 3, 7, 11),
- (0, 2, 4, 8, 10),
- (0, 4, 6, 7, 9),
- (0, 4, 7, 11),
- (0, 5, 7, 8, 10),
- (0, 5, 7, 11),
- (0, 4, 7, 8),
- (0, 4, 5, 7, 11),
- (0, 3, 7, 9),
- (0, 2, 4, 7, 10),
- (0, 1, 4, 7, 9),
- (0, 2, 3, 7, 8, 10),
- (0, 2, 3, 5, 7, 10),
- (0, 3, 7, 8),
- (0, 3, 7, 11),
- (0, 5),
- (0, 2, 4, 6, 7),
- (0, 3, 7, 9, 10),
- (0, 8),
- (0, 3, 7),
- (0, 2, 3, 7, 10),
- (0, 2, 5, 7),
- (0, 4, 5, 7, 10),
- (0, 2, 5, 7, 11),
- (0, 4, 7, 10, 11),
- (0, 5, 6),
- (0, 2, 4, 7, 11),
- (0, 3, 5, 7, 10),
- (0, 3, 6, 11),
- (0, 4, 11),
- (0, 3, 7, 9, 11),
- (0, 4, 6, 7, 9, 11),
- (0, 3, 5, 6, 10),
- (0, 2, 5, 6, 7, 10),
- (0, 7, 9),
- (0, 2, 4, 6, 7, 11),
- (0, 2, 4),
- (0, 4, 8, 11),
- (0, 2, 5, 7, 10),
- (0, 2, 6, 7),
- (0, 4),
- (0, 2, 4, 8),
- (0, 2, 4, 6, 7, 10),
- (0, 2, 4, 5, 7, 9, 11),
- (0, 4, 7, 9),
- (0, 4, 5, 7, 9, 10),
- (0, 2, 3, 5, 10),
- (0, 4, 7, 8, 10),
- (0, 3, 5, 7, 11),
- (0, 4, 5, 7),
- (0, 1, 3, 7, 10),
- (0, 1, 4, 7),
- (0, 1, 4, 5, 7, 10),
- (0, 2, 4, 6, 7, 9, 10),
- (0, 3, 7, 10),
- (0, 4, 7),
- (0, 9),
- (0, 2, 4, 7, 9, 10),
- (0, 3, 10),
- (0, 2, 4, 7, 8, 10),
- (0, 2, 7, 10),
- (0, 2, 4, 7, 9, 11),
- (0, 3),
- (0, 2, 4, 7, 9),
- (0, 2, 3, 5, 7),
- (0, 2, 3, 6, 9),
- (0, 4, 7, 8, 11),
- (0, 2, 3, 7),
- (0, 3, 4, 7, 11),
- (0, 2, 3, 5, 7, 9, 10),
- (0, 3, 6, 8),
- (0, 3, 4, 7),
- (0, 4, 6, 7, 10),
- (0, 3, 6, 7, 9),
- (0, 2, 4, 5, 7, 10),
- (0, 2, 4, 5, 7, 9, 10),
- (0, 3, 4, 7, 8, 10),
- (0, 3, 6),
- (0, 1, 4, 7, 8, 10),
- (0, 2, 4, 7),
- (0, 2, 4, 5, 7, 11),
- (0, 1, 4, 6, 7, 10),
- (0, 4, 8, 10),
- (0, 2, 4, 6, 7, 9, 11),
- (0, 5, 7, 10),
- (0, 4, 7, 10)]
+    # (0,),
+    # (0, 5),
+    # (0, 4),
+    # (0, 4, 7),
+    # (0, 3, 7),
+    # (0, 3),
+    # (0, 5, 7),
+    # (0, 3, 5),
+    # (0, 2),
+    # (0, 2, 5),
+    # (0, 3, 7, 10),
+    # (0, 4, 7, 10),
+    # (0, 2, 4, 7),
+    # (0, 3, 5, 7),
+    # (0, 2, 5, 7),
+    # (0, 2, 4, 7, 9),
+    # (0, 4, 7, 11),
+    # (0, 2, 4, 7, 10),
+    # (0, 3, 7, 9),
+    # (0, 2, 4),
+    # (0, 2, 6),
+    # (0, 3, 6),
+    # (0, 4, 8)
+
+    # Billboard / McGill chord types
+    (0, 2, 3, 7, 9),
+    (0, 4, 7, 9, 11),
+    (0, 7),
+    (0, 5, 7),
+    (0, 4, 6, 7, 11),
+    (0, 10),
+    (0, 4, 5, 7, 9),
+    (0, 7, 10),
+    (0, 3, 4, 7, 10),
+    (0, 7, 8),
+    (0, 2, 5, 7, 9, 10),
+    (0, 2, 5),
+    (0, 4, 8),
+    (0, 2, 7),
+    (0, 4, 7, 9, 10),
+    (0, 3, 7, 8, 10),
+    (0,),
+    (0, 3, 6, 9),
+    (0, 4, 6, 7),
+    (0, 3, 6, 10),
+    (0, 4, 6, 10),
+    (0, 1, 3, 6),
+    (0, 1, 4, 7, 10),
+    (0, 3, 5, 7),
+    (0, 2, 3, 7, 11),
+    (0, 2, 4, 8, 10),
+    (0, 4, 6, 7, 9),
+    (0, 4, 7, 11),
+    (0, 5, 7, 8, 10),
+    (0, 5, 7, 11),
+    (0, 4, 7, 8),
+    (0, 4, 5, 7, 11),
+    (0, 3, 7, 9),
+    (0, 2, 4, 7, 10),
+    (0, 1, 4, 7, 9),
+    (0, 2, 3, 7, 8, 10),
+    (0, 2, 3, 5, 7, 10),
+    (0, 3, 7, 8),
+    (0, 3, 7, 11),
+    (0, 5),
+    (0, 2, 4, 6, 7),
+    (0, 3, 7, 9, 10),
+    (0, 8),
+    (0, 3, 7),
+    (0, 2, 3, 7, 10),
+    (0, 2, 5, 7),
+    (0, 4, 5, 7, 10),
+    (0, 2, 5, 7, 11),
+    (0, 4, 7, 10, 11),
+    (0, 5, 6),
+    (0, 2, 4, 7, 11),
+    (0, 3, 5, 7, 10),
+    (0, 3, 6, 11),
+    (0, 4, 11),
+    (0, 3, 7, 9, 11),
+    (0, 4, 6, 7, 9, 11),
+    (0, 3, 5, 6, 10),
+    (0, 2, 5, 6, 7, 10),
+    (0, 7, 9),
+    (0, 2, 4, 6, 7, 11),
+    (0, 2, 4),
+    (0, 4, 8, 11),
+    (0, 2, 5, 7, 10),
+    (0, 2, 6, 7),
+    (0, 4),
+    (0, 2, 4, 8),
+    (0, 2, 4, 6, 7, 10),
+    (0, 2, 4, 5, 7, 9, 11),
+    (0, 4, 7, 9),
+    (0, 4, 5, 7, 9, 10),
+    (0, 2, 3, 5, 10),
+    (0, 4, 7, 8, 10),
+    (0, 3, 5, 7, 11),
+    (0, 4, 5, 7),
+    (0, 1, 3, 7, 10),
+    (0, 1, 4, 7),
+    (0, 1, 4, 5, 7, 10),
+    (0, 2, 4, 6, 7, 9, 10),
+    (0, 3, 7, 10),
+    (0, 4, 7),
+    (0, 9),
+    (0, 2, 4, 7, 9, 10),
+    (0, 3, 10),
+    (0, 2, 4, 7, 8, 10),
+    (0, 2, 7, 10),
+    (0, 2, 4, 7, 9, 11),
+    (0, 3),
+    (0, 2, 4, 7, 9),
+    (0, 2, 3, 5, 7),
+    (0, 2, 3, 6, 9),
+    (0, 4, 7, 8, 11),
+    (0, 2, 3, 7),
+    (0, 3, 4, 7, 11),
+    (0, 2, 3, 5, 7, 9, 10),
+    (0, 3, 6, 8),
+    (0, 3, 4, 7),
+    (0, 4, 6, 7, 10),
+    (0, 3, 6, 7, 9),
+    (0, 2, 4, 5, 7, 10),
+    (0, 2, 4, 5, 7, 9, 10),
+    (0, 3, 4, 7, 8, 10),
+    (0, 3, 6),
+    (0, 1, 4, 7, 8, 10),
+    (0, 2, 4, 7),
+    (0, 2, 4, 5, 7, 11),
+    (0, 1, 4, 6, 7, 10),
+    (0, 4, 8, 10),
+    (0, 2, 4, 6, 7, 9, 11),
+    (0, 5, 7, 10),
+    (0, 4, 7, 10)
+]
 allowed_chord_types_transpositions = []
 for c in allowed_chord_types:
     allowed_chord_types_transpositions.extend(get_all_transpositions(c))
@@ -257,7 +286,7 @@ class Piece(object):
         print 'N Harmony Options:', len(harmony_options)
         harmony_options.reverse()
         harmony_weights = [int(2 ** n) for n in range(len(harmony_options))]
-        new_harmony = weighted_choice(harmony_options, harmony_weights)
+        new_harmony = weighted_choice_lists(harmony_options, harmony_weights)
         new_pitches = [p for p in new_harmony if p not in holdover_pitches]
 
         # make sure all new pitches are used
@@ -348,7 +377,7 @@ class Piece(object):
                 n_musicians_opts = range(1, len(playing) + 1)
                 n_musicians_weights = list(reversed([2 ** n for n in n_musicians_opts]))
                 n_musicians_weights[0] = n_musicians_weights[1]
-                num_changing = weighted_choice(n_musicians_opts, n_musicians_weights)
+                num_changing = weighted_choice_lists(n_musicians_opts, n_musicians_weights)
                 changing = random.sample(playing, num_changing)
         else:
             not_eligible = [name for name in self.prev_event if self.prev_event[name] != 'stop']
@@ -361,7 +390,7 @@ class Piece(object):
                 n_musicians_opts = range(1, len(eligible) + 1)
                 n_musicians_weights = list(reversed([2 ** n for n in n_musicians_opts]))
                 n_musicians_weights[0] = n_musicians_weights[1]
-                num_changing = weighted_choice(n_musicians_opts, n_musicians_weights)
+                num_changing = weighted_choice_lists(n_musicians_opts, n_musicians_weights)
                 changing = random.sample(eligible, num_changing)
         # return self.get_pitches(changing)
         return try_f(self.get_pitches, args=[changing])
