@@ -1,25 +1,15 @@
-Andreas:
-    instrument: accordion
-    max_notes: 8
-Nicola:
-    instrument: keyboard
-    max_notes: 10
-Jonathan:
-    instrument: keyboard
-    max_notes: 4
-Smith:
-    instrument: melodica
-    max_notes: 4
-Hunter:
-    instrument: violin
-    max_notes: 2
-James:
-    instrument: 'tenor sax'
+Kristin:
+    instrument: oboe
     max_notes: 1
-Connor:
-    instrument: gravikord
-    max_notes: 4
-    scale: diatonic
-Mark:
-    instrument: mandolin
+Jessica:
+    instrument: voice
+    max_notes: 1
+Trevor:
+    instrument: piano
+    max_notes: 10
+Rachel:
+    instrument: cello
     max_notes: 2
+Andrea:
+    instrument: flute
+    max_notes: 1

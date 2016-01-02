@@ -1,0 +1,25 @@
+Andreas:
+    instrument: accordion
+    max_notes: 8
+Nicola:
+    instrument: keyboard
+    max_notes: 10
+Jonathan:
+    instrument: keyboard
+    max_notes: 4
+Smith:
+    instrument: melodica
+    max_notes: 4
+Hunter:
+    instrument: violin
+    max_notes: 2
+James:
+    instrument: 'tenor sax'
+    max_notes: 1
+Connor:
+    instrument: gravikord
+    max_notes: 4
+    scale: diatonic
+Mark:
+    instrument: mandolin
+    max_notes: 2

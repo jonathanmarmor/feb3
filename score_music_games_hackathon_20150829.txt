@@ -1,0 +1,283 @@
+0
+     Kristin D
+       Kevin A
+       David A
+
+1
+         Tai F#
+        Adam F#
+
+2
+       Brian E
+     Kristin stop
+     Natalia F#
+    Jonathan D
+      Trevor E
+       David stop
+
+3
+        Adam stop
+       Kevin stop
+
+4
+      Trevor stop
+
+5
+    Jonathan stop
+        Adam B
+      Trevor B
+     Natalia stop
+
+6
+         Tai stop
+       Kevin A
+
+7
+     Kristin C#
+    Jonathan A
+         Tai C#
+      Trevor stop
+       David C#
+
+8
+       Brian stop
+      Trevor B
+     Natalia F#
+
+9
+       Kevin stop
+
+10
+       Brian E
+      Trevor stop
+
+11
+       David stop
+         Tai stop
+     Natalia stop
+
+12
+     Natalia F#
+
+13
+     Kristin stop
+    Jonathan stop
+      Trevor G#
+       Kevin E
+         Tai B
+
+14
+       Brian stop
+     Natalia stop
+
+15
+       Brian D#
+        Adam stop
+       Kevin stop
+
+16
+         Tai stop
+
+17
+       David B
+
+18
+       Brian stop
+     Kristin E
+
+19
+     Natalia C#
+
+20
+         Tai F#
+
+21
+      Trevor stop
+
+22
+         Tai stop
+      Trevor C#
+
+23
+         Tai G#
+
+24
+        Adam G#
+       Kevin F# B
+       David stop
+
+25
+    Jonathan F#
+         Tai stop
+
+26
+       Brian G#
+     Natalia stop
+
+27
+        Adam stop
+
+28
+       Brian stop
+       Kevin stop
+       David E
+
+29
+       Kevin A
+
+30
+     Kristin stop
+
+31
+       Kevin stop
+
+32
+    Jonathan stop
+        Adam A
+
+33
+    Jonathan F#
+       Kevin F#
+
+34
+     Kristin B
+         Tai B
+
+35
+       Brian F#
+      Trevor stop
+     Natalia A
+
+36
+      Trevor C#
+       David stop
+
+37
+       Brian stop
+        Adam stop
+
+38
+    Jonathan stop
+        Adam E
+
+39
+       David E
+
+40
+     Kristin stop
+    Jonathan F#
+        Adam stop
+       Kevin stop
+         Tai stop
+
+41
+         Tai E
+       Kevin C#
+     Natalia stop
+
+42
+    Jonathan stop
+     Kristin A
+      Trevor stop
+
+43
+    Jonathan B
+       Kevin stop
+     Natalia E
+
+44
+       Kevin E B
+        Adam F#
+      Trevor A
+       David stop
+
+45
+         Tai stop
+     Natalia stop
+
+46
+        Adam stop
+       Kevin stop
+     Natalia G
+
+47
+    Jonathan stop
+        Adam F
+
+48
+     Kristin stop
+
+49
+       Brian D#
+     Kristin C
+    Jonathan D#
+
+50
+       David C
+         Tai C
+     Natalia stop
+
+51
+     Natalia G
+
+52
+         Tai stop
+
+53
+       Brian stop
+     Kristin stop
+         Tai A#
+      Trevor stop
+       David stop
+
+54
+      Trevor C#
+
+55
+        Adam stop
+
+56
+       Brian C#
+        Adam F
+
+57
+     Kristin C#
+         Tai stop
+     Natalia stop
+
+58
+      Trevor stop
+
+59
+     Kristin stop
+      Trevor G#
+       David G#
+
+60
+         Tai A#
+       Kevin C# A#
+
+61
+      Trevor stop
+     Natalia F
+
+62
+       Brian stop
+     Kristin G
+       Kevin stop
+       David stop
+
+63
+    Jonathan stop
+       David F
+
+64
+     Kristin stop
+       David stop
+
+65
+        Adam stop
+         Tai stop
+
+66
+     Natalia stop

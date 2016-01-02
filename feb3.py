@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
-import sys
 import random
-import itertools
 import datetime
 import csv
 import os
 from collections import Counter
+import argparse
 
 import yaml
 
 
 MAX_DEPTH = 1000
+
 
 def try_f(f, args=[], kwargs={}, depth=0):
     """Dumb way to try a random process a bunch of times."""
@@ -26,7 +26,7 @@ def try_f(f, args=[], kwargs={}, depth=0):
 
 
 def scale(x, minimum, maximum, floor=0, ceiling=1):
-    return ((ceiling - floor) * (float(x) - minimum))/(maximum - minimum) + floor
+    return ((ceiling - floor) * (float(x) - minimum)) / (maximum - minimum) + floor
 
 
 def weighted_choice(options, weights):
@@ -45,34 +45,144 @@ def zero(root, chord):
 
 
 def get_all_transpositions(chord):
-    return [zero(p, chord) for p in chord]
+    return list(set([zero(p, chord) for p in chord]))
 
 
 allowed_chord_types = [
-    (0,),
-    (0, 5),
-    (0, 4),
-    (0, 4, 7),
-    (0, 3, 7),
-    (0, 3),
-    (0, 5, 7),
-    (0, 3, 5),
-    (0, 2),
-    (0, 2, 5),
-    (0, 3, 7, 10),
-    (0, 4, 7, 10),
-    (0, 2, 4, 7),
-    (0, 3, 5, 7),
-    (0, 2, 5, 7),
-    (0, 2, 4, 7, 9),
-    (0, 4, 7, 11),
-    (0, 2, 4, 7, 10),
-    (0, 3, 7, 9),
-    (0, 2, 4),
-    (0, 2, 6),
-    (0, 3, 6),
-    (0, 4, 8)
-]
+#     (0,),
+#     (0, 5),
+#     (0, 4),
+#     (0, 4, 7),
+#     (0, 3, 7),
+#     (0, 3),
+#     (0, 5, 7),
+#     (0, 3, 5),
+#     (0, 2),
+#     (0, 2, 5),
+#     (0, 3, 7, 10),
+#     (0, 4, 7, 10),
+#     (0, 2, 4, 7),
+#     (0, 3, 5, 7),
+#     (0, 2, 5, 7),
+#     (0, 2, 4, 7, 9),
+#     (0, 4, 7, 11),
+#     (0, 2, 4, 7, 10),
+#     (0, 3, 7, 9),
+#     (0, 2, 4),
+#     (0, 2, 6),
+#     (0, 3, 6),
+#     (0, 4, 8)
+# ]
+ (0, 2, 3, 7, 9),
+ (0, 4, 7, 9, 11),
+ (0, 7),
+ (0, 5, 7),
+ (0, 4, 6, 7, 11),
+ (0, 10),
+ (0, 4, 5, 7, 9),
+ (0, 7, 10),
+ (0, 3, 4, 7, 10),
+ (0, 7, 8),
+ (0, 2, 5, 7, 9, 10),
+ (0, 2, 5),
+ (0, 4, 8),
+ (0, 2, 7),
+ (0, 4, 7, 9, 10),
+ (0, 3, 7, 8, 10),
+ (0,),
+ (0, 3, 6, 9),
+ (0, 4, 6, 7),
+ (0, 3, 6, 10),
+ (0, 4, 6, 10),
+ (0, 1, 3, 6),
+ (0, 1, 4, 7, 10),
+ (0, 3, 5, 7),
+ (0, 2, 3, 7, 11),
+ (0, 2, 4, 8, 10),
+ (0, 4, 6, 7, 9),
+ (0, 4, 7, 11),
+ (0, 5, 7, 8, 10),
+ (0, 5, 7, 11),
+ (0, 4, 7, 8),
+ (0, 4, 5, 7, 11),
+ (0, 3, 7, 9),
+ (0, 2, 4, 7, 10),
+ (0, 1, 4, 7, 9),
+ (0, 2, 3, 7, 8, 10),
+ (0, 2, 3, 5, 7, 10),
+ (0, 3, 7, 8),
+ (0, 3, 7, 11),
+ (0, 5),
+ (0, 2, 4, 6, 7),
+ (0, 3, 7, 9, 10),
+ (0, 8),
+ (0, 3, 7),
+ (0, 2, 3, 7, 10),
+ (0, 2, 5, 7),
+ (0, 4, 5, 7, 10),
+ (0, 2, 5, 7, 11),
+ (0, 4, 7, 10, 11),
+ (0, 5, 6),
+ (0, 2, 4, 7, 11),
+ (0, 3, 5, 7, 10),
+ (0, 3, 6, 11),
+ (0, 4, 11),
+ (0, 3, 7, 9, 11),
+ (0, 4, 6, 7, 9, 11),
+ (0, 3, 5, 6, 10),
+ (0, 2, 5, 6, 7, 10),
+ (0, 7, 9),
+ (0, 2, 4, 6, 7, 11),
+ (0, 2, 4),
+ (0, 4, 8, 11),
+ (0, 2, 5, 7, 10),
+ (0, 2, 6, 7),
+ (0, 4),
+ (0, 2, 4, 8),
+ (0, 2, 4, 6, 7, 10),
+ (0, 2, 4, 5, 7, 9, 11),
+ (0, 4, 7, 9),
+ (0, 4, 5, 7, 9, 10),
+ (0, 2, 3, 5, 10),
+ (0, 4, 7, 8, 10),
+ (0, 3, 5, 7, 11),
+ (0, 4, 5, 7),
+ (0, 1, 3, 7, 10),
+ (0, 1, 4, 7),
+ (0, 1, 4, 5, 7, 10),
+ (0, 2, 4, 6, 7, 9, 10),
+ (0, 3, 7, 10),
+ (0, 4, 7),
+ (0, 9),
+ (0, 2, 4, 7, 9, 10),
+ (0, 3, 10),
+ (0, 2, 4, 7, 8, 10),
+ (0, 2, 7, 10),
+ (0, 2, 4, 7, 9, 11),
+ (0, 3),
+ (0, 2, 4, 7, 9),
+ (0, 2, 3, 5, 7),
+ (0, 2, 3, 6, 9),
+ (0, 4, 7, 8, 11),
+ (0, 2, 3, 7),
+ (0, 3, 4, 7, 11),
+ (0, 2, 3, 5, 7, 9, 10),
+ (0, 3, 6, 8),
+ (0, 3, 4, 7),
+ (0, 4, 6, 7, 10),
+ (0, 3, 6, 7, 9),
+ (0, 2, 4, 5, 7, 10),
+ (0, 2, 4, 5, 7, 9, 10),
+ (0, 3, 4, 7, 8, 10),
+ (0, 3, 6),
+ (0, 1, 4, 7, 8, 10),
+ (0, 2, 4, 7),
+ (0, 2, 4, 5, 7, 11),
+ (0, 1, 4, 6, 7, 10),
+ (0, 4, 8, 10),
+ (0, 2, 4, 6, 7, 9, 11),
+ (0, 5, 7, 10),
+ (0, 4, 7, 10)]
 allowed_chord_types_transpositions = []
 for c in allowed_chord_types:
     allowed_chord_types_transpositions.extend(get_all_transpositions(c))
@@ -109,24 +219,25 @@ def find_all_supersets(subset):
 
 note_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
+
 def spell(chord):
     # TODO detect if flats or sharps should be used
     return ' '.join([note_names[p] for p in chord])
 
 
 class Piece(object):
-    def __init__(self, n_events):
+    def __init__(self, n_events=72, config='musicians.yaml'):
         self.n_events = n_events
         self.n = 0
 
-        self.musicians = yaml.load(open('musicians.yaml', 'rb'))
+        self.musicians = yaml.load(open(config, 'rb'))
 
-        self.prev_state = {name:[] for name in self.musicians}
+        self.prev_state = {name: [] for name in self.musicians}
         self.prev_event = {}
         self.prev_harmony = ()
 
         self.score = []
-        self.grid = {name:[] for name in self.musicians}
+        self.grid = {name: [] for name in self.musicians}
 
     def run(self):
         while self.n < self.n_events:
@@ -137,12 +248,13 @@ class Piece(object):
             self.n += 1
 
     def pick_harmony(self, entering, harmony_options, holdover_pitches):
-        pitches = {name:[] for name in entering}
+        pitches = {name: [] for name in entering}
 
         if len(harmony_options) > 1 and self.prev_harmony in harmony_options:
             harmony_options.remove(self.prev_harmony)
 
         # pick a harmony
+        print 'N Harmony Options:', len(harmony_options)
         harmony_options.reverse()
         harmony_weights = [int(2 ** n) for n in range(len(harmony_options))]
         new_harmony = weighted_choice(harmony_options, harmony_weights)
@@ -210,7 +322,7 @@ class Piece(object):
                 event[name] = 'stop'
         # Get pitches that are sustaining from previous
         holdover_pitches = []
-        not_changing =[name for name in self.musicians if name not in changing]
+        not_changing = [name for name in self.musicians if name not in changing]
         holdovers = [name for name in not_changing if self.prev_state[name]]
         for name in holdovers:
             for p in self.prev_state[name]:
@@ -376,22 +488,19 @@ class Piece(object):
         print
         self.report_harmonies()
         print
-        connor = self.pitches_in_part('Connor')
-        print connor
-        print len(connor)
-        return self
-
-
-def main():
-    n_events = 72
-    if len(sys.argv) == 2:
-        n_events = int(sys.argv[1])
-    p = Piece(n_events)
-    # p.test()
-    p.run()
-    p.reports()
-    return p
+        # connor = self.pitches_in_part('Connor')
+        # print 'connor', connor
+        # print 'len(connor)', len(connor)
+        # return self
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', '-c', default='musicians.yaml', help='Config file defining the musicians.')
+    parser.add_argument('--events', '-e', default=72, help='The number of events to make.', type=int)
+    args = parser.parse_args()
+
+    p = Piece(n_events=args.events, config=args.config)
+    # p.test()
+    p.run()
+    p.reports()

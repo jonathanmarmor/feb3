@@ -1,0 +1,27 @@
+Kristin:
+    instrument: recorder
+    max_notes: 1
+Kevin:
+    instrument: bass
+    max_notes: 2
+Jonathan:
+    instrument: vitual_ukelele
+    max_notes: 1
+Adam:
+    instrument: vitual_ukelele
+    max_notes: 1
+David:
+    instrument: cajon
+    max_notes: 1
+Brian:
+    instrument: kazoo
+    max_notes: 1
+Trevor:
+    instrument: vitual_ukelele
+    max_notes: 1
+Tai:
+    instrument: vitual_ukelele
+    max_notes: 1
+Natalia:
+    instrument: voice
+    max_notes: 1
