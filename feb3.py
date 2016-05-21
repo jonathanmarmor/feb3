@@ -4,13 +4,13 @@ import random
 import datetime
 import csv
 import os
-from collections import Counter
+from collections import Counter, defaultdict
 import argparse
 
 import yaml
 
 
-MAX_DEPTH = 99
+MAX_DEPTH = 20
 
 
 def try_f(f, args=[], kwargs={}, depth=0):
@@ -50,7 +50,7 @@ def weighted_choice(pairs):
 
     """
     options, weights = zip(*pairs)
-    return weighted_choice_lists(weights, options)
+    return weighted_choice_lists(options, weights)
 
 
 def weighted_choice_dict(d):
@@ -76,6 +76,47 @@ def get_all_transpositions(chord):
 
 
 allowed_chord_types = [
+    # Feb3 chord types + Billboard/McGill chord types that happen > 1 in 1000
+    (0, 4, 7),
+    (0, 3, 7),
+    (0, 4, 7, 10),
+    (0, 3, 7, 10),
+    (0, 4, 7, 11),
+    (0, 5),
+    (0, 2, 4, 7),
+    (0,),
+    (0, 3, 4, 7, 10),
+    (0, 5, 7),
+    (0, 4, 7, 9),
+    (0, 2, 3, 7, 10),
+    (0, 5, 7, 10),
+    (0, 2, 5, 7, 10),
+    (0, 2, 4, 7, 11),
+    (0, 2, 4, 5, 7, 10),
+    (0, 2, 4, 7, 10),
+    (0, 3, 7, 9),
+    (0, 4, 5, 7),
+    (0, 2, 4, 5, 7, 9, 10),
+    (0, 2, 4, 7, 9),
+    (0, 7, 10),
+    (0, 2, 3, 5, 7, 10),
+    (0, 3, 5, 7),
+    (0, 2, 7),
+    (0, 3, 6, 10),
+    (0, 3, 6),
+    (0, 3, 5, 7, 10),
+    (0, 2, 5, 7),
+    (0, 2, 3, 7),
+    (0, 4, 8),
+    (0, 2, 4),
+    (0, 4),
+    (0, 2, 5),
+    (0, 3),
+    (0, 3, 5),
+    (0, 2),
+    (0, 2, 6),
+
+    # Original Feb3 chordtypes
     # (0,),
     # (0, 5),
     # (0, 4),
@@ -101,116 +142,116 @@ allowed_chord_types = [
     # (0, 4, 8)
 
     # Billboard / McGill chord types
-    (0, 2, 3, 7, 9),
-    (0, 4, 7, 9, 11),
-    (0, 7),
-    (0, 5, 7),
-    (0, 4, 6, 7, 11),
-    (0, 10),
-    (0, 4, 5, 7, 9),
-    (0, 7, 10),
-    (0, 3, 4, 7, 10),
-    (0, 7, 8),
-    (0, 2, 5, 7, 9, 10),
-    (0, 2, 5),
-    (0, 4, 8),
-    (0, 2, 7),
-    (0, 4, 7, 9, 10),
-    (0, 3, 7, 8, 10),
-    (0,),
-    (0, 3, 6, 9),
-    (0, 4, 6, 7),
-    (0, 3, 6, 10),
-    (0, 4, 6, 10),
-    (0, 1, 3, 6),
-    (0, 1, 4, 7, 10),
-    (0, 3, 5, 7),
-    (0, 2, 3, 7, 11),
-    (0, 2, 4, 8, 10),
-    (0, 4, 6, 7, 9),
-    (0, 4, 7, 11),
-    (0, 5, 7, 8, 10),
-    (0, 5, 7, 11),
-    (0, 4, 7, 8),
-    (0, 4, 5, 7, 11),
-    (0, 3, 7, 9),
-    (0, 2, 4, 7, 10),
-    (0, 1, 4, 7, 9),
-    (0, 2, 3, 7, 8, 10),
-    (0, 2, 3, 5, 7, 10),
-    (0, 3, 7, 8),
-    (0, 3, 7, 11),
-    (0, 5),
-    (0, 2, 4, 6, 7),
-    (0, 3, 7, 9, 10),
-    (0, 8),
-    (0, 3, 7),
-    (0, 2, 3, 7, 10),
-    (0, 2, 5, 7),
-    (0, 4, 5, 7, 10),
-    (0, 2, 5, 7, 11),
-    (0, 4, 7, 10, 11),
-    (0, 5, 6),
-    (0, 2, 4, 7, 11),
-    (0, 3, 5, 7, 10),
-    (0, 3, 6, 11),
-    (0, 4, 11),
-    (0, 3, 7, 9, 11),
-    (0, 4, 6, 7, 9, 11),
-    (0, 3, 5, 6, 10),
-    (0, 2, 5, 6, 7, 10),
-    (0, 7, 9),
-    (0, 2, 4, 6, 7, 11),
-    (0, 2, 4),
-    (0, 4, 8, 11),
-    (0, 2, 5, 7, 10),
-    (0, 2, 6, 7),
-    (0, 4),
-    (0, 2, 4, 8),
-    (0, 2, 4, 6, 7, 10),
-    (0, 2, 4, 5, 7, 9, 11),
-    (0, 4, 7, 9),
-    (0, 4, 5, 7, 9, 10),
-    (0, 2, 3, 5, 10),
-    (0, 4, 7, 8, 10),
-    (0, 3, 5, 7, 11),
-    (0, 4, 5, 7),
-    (0, 1, 3, 7, 10),
-    (0, 1, 4, 7),
-    (0, 1, 4, 5, 7, 10),
-    (0, 2, 4, 6, 7, 9, 10),
-    (0, 3, 7, 10),
-    (0, 4, 7),
-    (0, 9),
-    (0, 2, 4, 7, 9, 10),
-    (0, 3, 10),
-    (0, 2, 4, 7, 8, 10),
-    (0, 2, 7, 10),
-    (0, 2, 4, 7, 9, 11),
-    (0, 3),
-    (0, 2, 4, 7, 9),
-    (0, 2, 3, 5, 7),
-    (0, 2, 3, 6, 9),
-    (0, 4, 7, 8, 11),
-    (0, 2, 3, 7),
-    (0, 3, 4, 7, 11),
-    (0, 2, 3, 5, 7, 9, 10),
-    (0, 3, 6, 8),
-    (0, 3, 4, 7),
-    (0, 4, 6, 7, 10),
-    (0, 3, 6, 7, 9),
-    (0, 2, 4, 5, 7, 10),
-    (0, 2, 4, 5, 7, 9, 10),
-    (0, 3, 4, 7, 8, 10),
-    (0, 3, 6),
-    (0, 1, 4, 7, 8, 10),
-    (0, 2, 4, 7),
-    (0, 2, 4, 5, 7, 11),
-    (0, 1, 4, 6, 7, 10),
-    (0, 4, 8, 10),
-    (0, 2, 4, 6, 7, 9, 11),
-    (0, 5, 7, 10),
-    (0, 4, 7, 10)
+    # (0, 2, 3, 7, 9),
+    # (0, 4, 7, 9, 11),
+    # (0, 7),
+    # (0, 5, 7),
+    # (0, 4, 6, 7, 11),
+    # (0, 10),
+    # (0, 4, 5, 7, 9),
+    # (0, 7, 10),
+    # (0, 3, 4, 7, 10),
+    # (0, 7, 8),
+    # (0, 2, 5, 7, 9, 10),
+    # (0, 2, 5),
+    # (0, 4, 8),
+    # (0, 2, 7),
+    # (0, 4, 7, 9, 10),
+    # (0, 3, 7, 8, 10),
+    # (0,),
+    # (0, 3, 6, 9),
+    # (0, 4, 6, 7),
+    # (0, 3, 6, 10),
+    # (0, 4, 6, 10),
+    # (0, 1, 3, 6),
+    # (0, 1, 4, 7, 10),
+    # (0, 3, 5, 7),
+    # (0, 2, 3, 7, 11),
+    # (0, 2, 4, 8, 10),
+    # (0, 4, 6, 7, 9),
+    # (0, 4, 7, 11),
+    # (0, 5, 7, 8, 10),
+    # (0, 5, 7, 11),
+    # (0, 4, 7, 8),
+    # (0, 4, 5, 7, 11),
+    # (0, 3, 7, 9),
+    # (0, 2, 4, 7, 10),
+    # (0, 1, 4, 7, 9),
+    # (0, 2, 3, 7, 8, 10),
+    # (0, 2, 3, 5, 7, 10),
+    # (0, 3, 7, 8),
+    # (0, 3, 7, 11),
+    # (0, 5),
+    # (0, 2, 4, 6, 7),
+    # (0, 3, 7, 9, 10),
+    # (0, 8),
+    # (0, 3, 7),
+    # (0, 2, 3, 7, 10),
+    # (0, 2, 5, 7),
+    # (0, 4, 5, 7, 10),
+    # (0, 2, 5, 7, 11),
+    # (0, 4, 7, 10, 11),
+    # (0, 5, 6),
+    # (0, 2, 4, 7, 11),
+    # (0, 3, 5, 7, 10),
+    # (0, 3, 6, 11),
+    # (0, 4, 11),
+    # (0, 3, 7, 9, 11),
+    # (0, 4, 6, 7, 9, 11),
+    # (0, 3, 5, 6, 10),
+    # (0, 2, 5, 6, 7, 10),
+    # (0, 7, 9),
+    # (0, 2, 4, 6, 7, 11),
+    # (0, 2, 4),
+    # (0, 4, 8, 11),
+    # (0, 2, 5, 7, 10),
+    # (0, 2, 6, 7),
+    # (0, 4),
+    # (0, 2, 4, 8),
+    # (0, 2, 4, 6, 7, 10),
+    # (0, 2, 4, 5, 7, 9, 11),
+    # (0, 4, 7, 9),
+    # (0, 4, 5, 7, 9, 10),
+    # (0, 2, 3, 5, 10),
+    # (0, 4, 7, 8, 10),
+    # (0, 3, 5, 7, 11),
+    # (0, 4, 5, 7),
+    # (0, 1, 3, 7, 10),
+    # (0, 1, 4, 7),
+    # (0, 1, 4, 5, 7, 10),
+    # (0, 2, 4, 6, 7, 9, 10),
+    # (0, 3, 7, 10),
+    # (0, 4, 7),
+    # (0, 9),
+    # (0, 2, 4, 7, 9, 10),
+    # (0, 3, 10),
+    # (0, 2, 4, 7, 8, 10),
+    # (0, 2, 7, 10),
+    # (0, 2, 4, 7, 9, 11),
+    # (0, 3),
+    # (0, 2, 4, 7, 9),
+    # (0, 2, 3, 5, 7),
+    # (0, 2, 3, 6, 9),
+    # (0, 4, 7, 8, 11),
+    # (0, 2, 3, 7),
+    # (0, 3, 4, 7, 11),
+    # (0, 2, 3, 5, 7, 9, 10),
+    # (0, 3, 6, 8),
+    # (0, 3, 4, 7),
+    # (0, 4, 6, 7, 10),
+    # (0, 3, 6, 7, 9),
+    # (0, 2, 4, 5, 7, 10),
+    # (0, 2, 4, 5, 7, 9, 10),
+    # (0, 3, 4, 7, 8, 10),
+    # (0, 3, 6),
+    # (0, 1, 4, 7, 8, 10),
+    # (0, 2, 4, 7),
+    # (0, 2, 4, 5, 7, 11),
+    # (0, 1, 4, 6, 7, 10),
+    # (0, 4, 8, 10),
+    # (0, 2, 4, 6, 7, 9, 11),
+    # (0, 5, 7, 10),
+    # (0, 4, 7, 10)
 ]
 allowed_chord_types_transpositions = []
 for c in allowed_chord_types:
@@ -238,8 +279,6 @@ def find_supersets(subset, chord_type):
 
 
 def find_all_supersets(subset):
-    if not subset:
-        subset = [random.choice(range(12))]
     supersets = []
     for chord_type in allowed_chord_types:
         supersets.extend(find_supersets(subset, chord_type))
@@ -268,6 +307,10 @@ class Piece(object):
         self.score = []
         self.grid = {name: [] for name in self.musicians}
 
+        self.pc_counter = Counter()
+        for pc in range(12):
+            self.pc_counter[pc] = 0
+
     def run(self):
         while self.n < self.n_events:
             event = try_f(self.get_event)
@@ -283,7 +326,7 @@ class Piece(object):
             harmony_options.remove(self.prev_harmony)
 
         # pick a harmony
-        print 'N Harmony Options:', len(harmony_options)
+        # print 'N Harmony Options:', len(harmony_options)
         harmony_options.reverse()
         harmony_weights = [int(2 ** n) for n in range(len(harmony_options))]
         new_harmony = weighted_choice_lists(harmony_options, harmony_weights)
@@ -330,6 +373,16 @@ class Piece(object):
 
         return pitches
 
+    def get_new_seed(self):
+        # Randomly choose from the pitchclasses that have occurred the lease
+        pcs_by_count = defaultdict(list)
+        for pc in self.pc_counter:
+            count = self.pc_counter[pc]
+            pcs_by_count[count].append(pc)
+        for count in sorted(pcs_by_count.keys()):
+            if pcs_by_count[count]:
+                return random.choice(pcs_by_count[count])
+
     def make_new_harmony(self, entering, holdover_pitches):
         if not entering and not is_allowed(holdover_pitches):
             raise Exception('Pitches dropped out, no new pitches are coming in, and the harmony left behind is not allowed. Try again.')
@@ -337,7 +390,17 @@ class Piece(object):
         if not entering:
             return {}
 
-        harmony_options = find_all_supersets(holdover_pitches)
+        if not holdover_pitches:
+            # Choose a new pitch
+            print
+            print 'no holdovers'
+            print 'pc_counter', self.pc_counter
+            new_seed = self.get_new_seed()
+            print 'new seed', new_seed
+            harmony_options = find_all_supersets([new_seed])
+
+        else:
+            harmony_options = find_all_supersets(holdover_pitches)
         # return self.pick_harmony(entering, harmony_options, holdover_pitches)
         return try_f(self.pick_harmony, args=[entering, harmony_options, holdover_pitches])
 
@@ -396,6 +459,7 @@ class Piece(object):
         return try_f(self.get_pitches, args=[changing])
 
     def add_event(self, event):
+
         self.score.append(event)
 
         self.prev_event = event
@@ -420,6 +484,8 @@ class Piece(object):
             self.prev_state[name] = prev
 
         self.prev_harmony = self.get_harmony()
+        for p in self.prev_harmony:
+            self.pc_counter[p] += 1
 
     def get_harmony(self):
         pitches = []
@@ -435,7 +501,7 @@ class Piece(object):
 
     def report_score(self):
         for i, event in enumerate(self.score):
-            print i
+            print i + 1
             for name in event:
                 action = event[name]
                 if action != 'stop':
@@ -517,6 +583,8 @@ class Piece(object):
         print
         self.report_harmonies()
         print
+
+        # print self.pc_counter.most_common()
         # connor = self.pitches_in_part('Connor')
         # print 'connor', connor
         # print 'len(connor)', len(connor)
